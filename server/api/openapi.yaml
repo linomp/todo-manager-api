@@ -1,11 +1,27 @@
 openapi: 3.0.1
 info:
-  title: ToDo Manager - 25.02 Exam Call Version
-  description: REST APIs for the interaction with the ToDo Manager service.
-  version: 1.0.0
+  title: ToDo Manager - 25.02 Exam Call
+  description: REST APIs for the interaction with the ToDo Manager service, extended with multi-user tasks.
+  contact:
+    name: by Lino Mediavilla (s293655)
+    url: https://github.com/linomp
+  version: 2.0.0
 servers:
   - url: "http://localhost:3000"
+    description: Local Dev server
 tags:
+  - name: users
+    description: resource representing the set of all the users
+  - name: users/authenticator
+    description: resource representing the authenticator
+  - name: "users/{userId}"
+    description: resource representing the user with ID userId
+  - name: "users/{userId}/selection"
+    description: resource representing the task selection for the user with ID userID
+  - name: "users/{userId}/tasks/created"
+    description: resource representing the tasks created by the user with ID userId
+  - name: "users/{userId}/tasks/assigned"
+    description: resource representing the tasks assigned to the user with ID userId
   - name: tasks
     description: resource representing the set of all the tasks
   - name: tasks/public
@@ -24,18 +40,7 @@ tags:
     description: resource representing the completion of the the task with ID taskID
   - name: tasks/assignments
     description: resource representing the assignments of tasks to users
-  - name: users
-    description: resource representing the set of all the users
-  - name: users/authenticator
-    description: resource representing the authenticator
-  - name: "users/{userId}"
-    description: resource representing the user with ID userId
-  - name: "users/{userId}/selection"
-    description: resource representing the task selection for the user with ID userID
-  - name: "users/{userId}/tasks/created"
-    description: resource representing the tasks created by the user with ID userId
-  - name: "users/{userId}/tasks/assigned"
-    description: resource representing the tasks assigned to the user with ID userId
+
 paths:
   /api/tasks/public:
     get:
@@ -327,6 +332,7 @@ paths:
           name: type
           schema:
             type: string
+            default: login
           description: The operation type ("login" or "logout")
       requestBody:
         description: >-
@@ -337,7 +343,18 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/User"
+            examples:
+              user 1:
+                summary: example user 1
+                $ref: "#/components/examples/user1"
+              user 2:
+                summary: example user 2
+                $ref: "#/components/examples/user2"
+              user 3:
+                summary: example user 3
+                $ref: "#/components/examples/user3"
         required: true
+
       responses:
         "204":
           description: No Content
@@ -658,6 +675,33 @@ paths:
           content: {}
 components:
   schemas:
+    User:
+      type: object
+      properties:
+        $schema:
+          type: string
+          description: >-
+            path to the JSON Schema to use for the validation of the JSON file
+            describing the task
+        id:
+          type: integer
+          description: unique identifier for the user
+        name:
+          type: string
+          description: username of the user
+        email:
+          type: string
+          format: email
+          description: email address of the user
+        password:
+          type: string
+          minLength: 6
+          maxLength: 20
+          description: password of the user
+        self:
+          type: string
+          format: uri-reference
+          description: self link
     Task:
       type: object
       properties:
@@ -708,36 +752,16 @@ components:
           type: string
           format: uri-reference
           description: self link
-    User:
-      type: object
-      properties:
-        $schema:
-          type: string
-          description: >-
-            path to the JSON Schema to use for the validation of the JSON file
-            describing the task
-        id:
-          type: integer
-          description: unique identifier for the user
-        name:
-          type: string
-          description: username of the user
-        email:
-          type: string
-          format: email
-          description: email address of the user
-        password:
-          type: string
-          minLength: 6
-          maxLength: 20
-          description: password of the user
-        self:
-          type: string
-          format: uri-reference
-          description: self link
   securitySchemes:
     cookieAuth:
       description: JWT to identify the authenticated user.
       type: apiKey
       in: cookie
       name: connect.sid
+  examples:
+    user1:
+      value: { "email": "user.dsp@polito.it", "password": "password" }
+    user2:
+      value: { "email": "user2.dsp@polito.it", "password": "password" }
+    user3:
+      value: { "email": "user3.dsp@polito.it", "password": "password" }

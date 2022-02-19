@@ -4,6 +4,40 @@ const User = require('../components/user');
 const db = require('../components/db');
 const bcrypt = require('bcrypt');
 
+
+/**
+ * Create a new dummy user given email and password
+ * 
+ * Input:
+ * - email: email of the user
+ * Output:
+ * - the user having the specified email, name = the trimmed email, and password = "password"
+ */
+const createDummyUser = function (email) {
+    let password = "password"
+    let hash = bcrypt.hashSync(password, 10);
+
+    let name = email.split('@')
+    if (name.length > 1) {
+        name = name[0]
+    } else {
+        name = email
+    }
+
+    const sql = "INSERT INTO users (email, name, hash) VALUES (?, ?, ?)";
+    db.run(sql, [email, name, hash], function (err) {
+        if (err) {
+            return null;
+        }
+        else {
+            console.log(this.lastID)
+            const user = createUser({ id: this.lastID, name, email, hash });
+            return user
+        }
+    });
+};
+
+
 /**
  * Retrieve a user by her email
  * 
@@ -14,19 +48,26 @@ const bcrypt = require('bcrypt');
  * 
  */
 exports.getUserByEmail = function (email) {
-  return new Promise((resolve, reject) => {
-      const sql = "SELECT * FROM users WHERE email = ?";
-      db.all(sql, [email], (err, rows) => {
-          if (err) 
-              reject(err);
-          else if (rows.length === 0)
-              resolve(undefined);
-          else{
-              const user = createUser(rows[0]);
-              resolve(user);
-          }
-      });
-  });
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT * FROM users WHERE email = ?";
+        db.all(sql, [email], (err, rows) => {
+            if (err)
+                reject(err);
+            else if (rows.length === 0) {
+                console.log("Email not found; creating new user")
+                const user = createDummyUser(email)
+                if (!user) {
+                    reject(undefined)
+                } else {
+                    resolve(user);
+                }
+            }
+            else {
+                const user = createUser(rows[0]);
+                resolve(user);
+            }
+        });
+    });
 };
 
 /**
@@ -39,19 +80,19 @@ exports.getUserByEmail = function (email) {
  * 
  */
 exports.getUserById = function (id) {
-  return new Promise((resolve, reject) => {
-      const sql = "SELECT id, name, email FROM users WHERE id = ?"
-      db.all(sql, [id], (err, rows) => {
-          if (err) 
-              reject(err);
-          else if (rows.length === 0)
-              resolve(undefined);
-          else{
-              const user = createUser(rows[0]);
-              resolve(user);
-          }
-      });
-  });
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT id, name, email FROM users WHERE id = ?"
+        db.all(sql, [id], (err, rows) => {
+            if (err)
+                reject(err);
+            else if (rows.length === 0)
+                resolve(undefined);
+            else {
+                const user = createUser(rows[0]);
+                resolve(user);
+            }
+        });
+    });
 };
 
 /**
@@ -63,7 +104,7 @@ exports.getUserById = function (id) {
  * - the list of all the users
  * 
  */
-exports.getUsers = function() {
+exports.getUsers = function () {
     return new Promise((resolve, reject) => {
         const sql = "SELECT id, name, email FROM users";
         db.all(sql, [], (err, rows) => {
@@ -71,27 +112,27 @@ exports.getUsers = function() {
                 reject(err);
             } else {
                 if (rows.length === 0)
-                     resolve(undefined);
+                    resolve(undefined);
                 else {
                     let users = rows.map((row) => createUser(row));
                     resolve(users);
                 }
             }
         });
-      });
-  }
+    });
+}
 
 
-  /**
- * Retrieve the active task of the user
- * 
- * Input:
- * - userId of the user
- * Output:
- * - the active task for the user with ID userId
- * 
- */
-exports.getActiveTaskUser = function(userId) {
+/**
+* Retrieve the active task of the user
+* 
+* Input:
+* - userId of the user
+* Output:
+* - the active task for the user with ID userId
+* 
+*/
+exports.getActiveTaskUser = function (userId) {
     return new Promise((resolve, reject) => {
         const sql = "SELECT t.id, t.description FROM tasks as t, assignments as a WHERE a.user = ? AND a.task = t.id AND a.active = 1";
         db.all(sql, [userId], (err, rows) => {
@@ -103,8 +144,8 @@ exports.getActiveTaskUser = function(userId) {
                 resolve(rows[0]);
             }
         });
-      });
-  }
+    });
+}
 
 
 /**
@@ -112,14 +153,14 @@ exports.getActiveTaskUser = function(userId) {
  */
 
 const createUser = function (row) {
-  const id = row.id;
-  const name = row.name;
-  const email = row.email;
-  const hash = row.hash;
-  return new User(id, name, email, hash);
+    const id = row.id;
+    const name = row.name;
+    const email = row.email;
+    const hash = row.hash;
+    return new User(id, name, email, hash);
 }
 
-exports.checkPassword = function(user, password){
-  let hash = bcrypt.hashSync(password, 10);
-  return bcrypt.compareSync(password, user.hash);
+exports.checkPassword = function (user, password) {
+    let hash = bcrypt.hashSync(password, 10);
+    return bcrypt.compareSync(password, user.hash);
 }
