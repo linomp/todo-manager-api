@@ -28,7 +28,7 @@ _Repo setup & test suite_
 - [x] Analyze exam task & lab 3 solution structure
 - [x] Adjustments to `openapi.yaml` (fix layout, add examples) and import in Postman 
 - [X] Implement user creation workaround
-- [X] Create automated test suite (with Postman test scripts) - TDD approach
+- [ ] Create automated test suite (with Postman test scripts) - TDD approach
 
 _Feature Implementation_
 - [ ] Extend Task Schema, add `completers` property (besides count, task owner also needs to know completers' info). 
