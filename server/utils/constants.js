@@ -1,3 +1,3 @@
 module.exports = Object.freeze({
-    OFFSET: '10',
+    OFFSET: '30',
 });

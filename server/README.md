@@ -28,10 +28,10 @@ _Repo setup & test suite_
 - [x] Analyze exam task & lab 3 solution structure
 - [x] Adjustments to `openapi.yaml` (fix layout, add examples) and import in Postman 
 - [X] Implement user creation workaround
-- [ ] Create automated test suite (with Postman test scripts) - TDD approach
+- [X] Create automated test suite (with Postman test scripts) - TDD approach
 
 _Feature Implementation_
-- [ ] Extend Task Schema, add `completers` property (besides count, task owner also needs to know completers' info). 
+- [ ] Extend Task Schema, add `min_completers`, `selectors`, and `completers` properties (besides completer count, task owner also needs to know selectors' and completers' info). 
   - Keep in mind: _"a completer is a task assignee who has completed that task. A task may have 100 assignees but less completers"_
 - [ ] Adjust notion of 'Task completion'; now based on minimum completers vs. current completers.
 - [ ] Add validation/error: _"a user who has already completed a task cannot complete it again"_.
