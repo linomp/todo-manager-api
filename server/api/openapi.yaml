@@ -2,7 +2,7 @@ openapi: 3.0.1
 
 info:
   title: ToDo Manager - 25.02 Exam Call
-  description: REST APIs for the interaction with the ToDo Manager service, extended with multi-user tasks.
+  description: REST APIs for the interaction with the ToDo Manager service, extended with Collaborative tasks.
   contact:
     name: Lino Mediavilla (s293655)
     url: https://github.com/linomp
@@ -96,7 +96,7 @@ paths:
       description: A new task is created by the authenticated user.
       operationId: addTask
       requestBody:
-        description: Task object that needs to be created
+        description: Task object that needs to be created. In particular, now a **minimum number of completers** can be specified for a Task (default value is 1). This indicates **the number of assignees that must mark the task as completed** before the task itself can be considered complete.
         content:
           application/json:
             schema:
@@ -332,7 +332,7 @@ paths:
       summary: Logs a user in or out
       description: >-
         The user who wants to log in or out sends the user data to the
-        authenticator which performs the operation. A small workaround was implemented for development purposes; if the provided email does not exist in the database, instead of returning an error, a new user is created with that email and a default password with the value "password" 
+        authenticator which performs the operation. A small workaround was implemented for development purposes; if the provided email does not exist in the database, instead of returning an error, a new user is created with that email and a default password with the value "password"
       operationId: authenticateUser
       parameters:
         - in: query
@@ -359,7 +359,7 @@ paths:
                 $ref: "#/components/examples/user2"
               user 3:
                 summary: example user 3
-                $ref: "#/components/examples/user3" 
+                $ref: "#/components/examples/user3"
         required: true
 
       responses:
@@ -521,7 +521,9 @@ paths:
         - cookieAuth: []
       summary: Complete a task
       description: >-
-        The task with ID taskId is marked as completed. This operation can only be performed by an assignee of the task.
+        **Increases** the number of **task assignees that have completed the task** with ID taskId.
+        If the **minimum number of completers** is **reached**, the task is also **marked as completed**. 
+        This operation can **only be performed by an assignee of the task**, and only if they **have not marked the task as completed before**.
       operationId: completeTask
       parameters:
         - name: taskId

@@ -35,9 +35,10 @@ _Feature Implementation_
   - Keep in mind: _"a completer is a task assignee who has completed that task. A task may have 100 assignees but less completers"_
 - [X] Extend Task creation endpoint
 - [X] Adjust notion of 'Task completion'; now based on minimum completers vs. current completers.
-- [ ] Document logic extension in task completion endpoint
 - [X] Add validation/error: _"a user who has already completed a task cannot complete it again"_.
 - [X] Make sure _"only assignee of a task can mark it as completed"_ still holds.
+- [X] Document logic extension in task completion endpoint
 - [ ] Allow owner of task to see: `assignees`, `selectors` & `completers`
 - [ ] Double check documentation completeness (w. examples)
 - [ ] Double check everything works on SwaggerUI & Postman
+- [ ] Clean up Task completion code

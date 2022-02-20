@@ -1030,7 +1030,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Assigns user to brand new task\", function () {\r",
+							"pm.test(\"Assigns self to brand new task\", function () {\r",
 							"    pm.response.to.have.status(204);\r",
 							"});\r",
 							"\r",
