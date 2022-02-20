@@ -1,14 +1,17 @@
 openapi: 3.0.1
+
 info:
   title: ToDo Manager - 25.02 Exam Call
   description: REST APIs for the interaction with the ToDo Manager service, extended with multi-user tasks.
   contact:
-    name: by Lino Mediavilla (s293655)
+    name: Lino Mediavilla (s293655)
     url: https://github.com/linomp
   version: 2.0.0
+
 servers:
   - url: "http://localhost:3000"
     description: Local Dev server
+
 tags:
   - name: users
     description: resource representing the set of all the users
@@ -17,7 +20,7 @@ tags:
   - name: "users/{userId}"
     description: resource representing the user with ID userId
   - name: "users/{userId}/selection"
-    description: resource representing the task selection for the user with ID userID
+    description: resource representing the selection of active task on the user with ID userID
   - name: "users/{userId}/tasks/created"
     description: resource representing the tasks created by the user with ID userId
   - name: "users/{userId}/tasks/assigned"
@@ -98,6 +101,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Task"
+            examples:
+              task 1:
+                summary: example task 1
+                $ref: "#/components/examples/task1"
         required: true
       responses:
         "201":
@@ -196,7 +203,7 @@ paths:
         - "tasks/{taskId}"
       security:
         - cookieAuth: []
-      summary: Retreve a task
+      summary: Retrieve a task
       description: The task with ID taskId is retrieved. This operation can be performed on the task if at least one of the following three conditions is satisfied. 1) The task is public. 2) The user who performs the operation is the task's owner. 3) The user who performs the operation is a task's assignee.
       operationId: getSingleTask
       parameters:
@@ -397,6 +404,16 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/User"
+              examples:
+                user 1:
+                  summary: example user 1
+                  $ref: "#/components/examples/user1"
+                user 2:
+                  summary: example user 2
+                  $ref: "#/components/examples/user2"
+                user 3:
+                  summary: example user 3
+                  $ref: "#/components/examples/user3"
         required: true
       responses:
         "204":
@@ -422,7 +439,7 @@ paths:
         - "tasks/{taskId}/assignees"
       security:
         - cookieAuth: []
-      summary: Retreve the users a task has been assigned to
+      summary: Retrieve the users a task has been assigned to
       description: The users to whom the task with ID taskId is assigned are retrieved. This operation can be performed only by the owner.
       operationId: getUsersAssigned
       parameters:
@@ -650,16 +667,26 @@ paths:
         - cookieAuth: []
       summary: Select a task as the active task
       description: >-
-        The task that is included in the request body is labeled as the acrive task for the user with ID userId.
-      operationId: removeUser
+        The task that is included in the request body is labeled as the active task for the user with ID userId.
+      operationId: selectTask
       parameters:
         - name: userId
           in: path
-          description: ID of the user to remove
+          description: ID of the user to execute task selection on
           required: true
           schema:
             type: integer
             format: int64
+      requestBody:
+        description: Task to be selected as active
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Task"
+            examples:
+              task 1:
+                summary: example task 1
+                value: { "id": 16 }
       responses:
         "204":
           description: Successful operation - No Content
@@ -760,8 +787,20 @@ components:
       name: connect.sid
   examples:
     user1:
-      value: { "email": "user.dsp@polito.it", "password": "password" }
+      value: { "id": 1, "email": "user.dsp@polito.it", "password": "password" }
     user2:
-      value: { "email": "user2.dsp@polito.it", "password": "password" }
+      value:
+        { "id": 14, "email": "user2.dsp@polito.it", "password": "password" }
     user3:
-      value: { "email": "user3.dsp@polito.it", "password": "password" }
+      value:
+        { "id": 15, "email": "user3.dsp@polito.it", "password": "password" }
+    task1:
+      value:
+        {
+          "description": "New Test Task",
+          "important": false,
+          "private": false,
+          "project": "Personal",
+          "deadline": "2022-06-11T02:06:05.629Z",
+          "completed": false,
+        }
