@@ -340,36 +340,102 @@ exports.updateSingleTask = function (task, taskId, owner) {
  **/
 exports.completeTask = function (taskId, assignee) {
 
-    // TODO: use currentCompleters count for easier implementation of this
-
     return new Promise((resolve, reject) => {
-        const sql1 = "SELECT * FROM tasks t WHERE t.id = ?";
-        db.all(sql1, [taskId], (err, rows) => {
-            if (err)
-                reject(err);
-            else if (rows.length === 0)
-                reject(404);
-            else {
-                const sql2 = "SELECT * FROM assignments a WHERE a.user = ? AND a.task = ?";
-                db.all(sql2, [assignee, taskId], (err, rows2) => {
-                    if (err)
-                        reject(err);
-                    else if (rows2.length === 0)
-                        reject(403);
-                    else {
-                        const sql3 = 'UPDATE tasks SET completed = 1 WHERE id = ?';
-                        db.run(sql3, [taskId], function (err) {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                resolve(null);
-                            }
-                        })
-                    }
-                })
-            }
 
-        });
+        db.serialize(function () {
+            db.run('BEGIN TRANSACTION;');
+
+            const sql1 = "SELECT * FROM tasks t WHERE t.id = ?";
+            db.all(sql1, [taskId], (err, rows) => {
+                if (err) {
+                    db.run('ROLLBACK;')
+                    reject(err);
+                }
+                else if (rows.length === 0) {
+                    db.run('ROLLBACK;')
+                    reject(404);
+                }
+                else {
+                    const task = rows[0]
+                    const sql2 = "SELECT * FROM assignments a WHERE a.user = ? AND a.task = ?";
+                    db.all(sql2, [assignee, taskId], (err, rows2) => {
+                        if (err) {
+                            db.run('ROLLBACK;')
+                            reject(err);
+                        }
+                        else if (rows2.length === 0) {
+                            db.run('ROLLBACK;')
+                            reject(403);
+                        } else {
+                            const assignmentEntry = rows2[0]
+
+                            // Return error if user who already completed tries to complete again
+                            if (assignmentEntry.completed == 1) {
+                                db.run('ROLLBACK;')
+                                reject(403)
+                                return
+                            }
+
+                            // Mark task as completed or increase its completers count
+                            // Also, record completion by the current assignee in the assignments table,
+                            // And set the active task of that user to 0
+
+                            if ((task.currentCompleters + 1) == task.minCompleters) {
+                                const sql3 = `UPDATE tasks SET currentCompleters = ${task.minCompleters} WHERE id = ?`;
+                                db.run(sql3, [taskId], function (err) {
+                                    if (err) {
+                                        db.run('ROLLBACK;')
+                                        reject(err);
+                                    } else {
+                                        const sql4 = 'UPDATE tasks SET completed = 1 WHERE id = ?';
+                                        db.run(sql4, [taskId], function (err) {
+                                            if (err) {
+                                                db.run('ROLLBACK;')
+                                                reject(err);
+                                            } else {
+                                                const sql5 = "UPDATE assignments SET completed = 1, active = 0 WHERE user = ? AND task = ?";
+                                                db.all(sql5, [assignee, taskId], function (err) {
+                                                    if (err) {
+                                                        db.run('ROLLBACK;')
+                                                        reject(err);
+                                                    } else {
+                                                        db.run('COMMIT TRANSACTION');
+                                                        resolve(null);
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            } else if ((task.currentCompleters + 1) < task.minCompleters) {
+                                const sql3 = `UPDATE tasks SET currentCompleters = ${task.currentCompleters + 1} WHERE id = ?`;
+                                db.run(sql3, [taskId], function (err) {
+                                    if (err) {
+                                        db.run('ROLLBACK;')
+                                        reject(err);
+                                    } else {
+                                        const sql4 = "UPDATE assignments SET completed = 1, active = 0 WHERE user = ? AND task = ?";
+                                        db.all(sql4, [assignee, taskId], function (err) {
+                                            if (err) {
+                                                db.run('ROLLBACK;')
+                                                reject(err);
+                                            } else {
+                                                db.run('COMMIT TRANSACTION');
+                                                resolve(null);
+                                            }
+                                        })
+                                    }
+                                })
+                            } else {
+                                db.run('ROLLBACK;')
+                                reject(403);
+                            }
+                        }
+                    })
+                }
+
+            });
+        })
     });
 }
 

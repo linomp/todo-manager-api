@@ -332,7 +332,7 @@ paths:
       summary: Logs a user in or out
       description: >-
         The user who wants to log in or out sends the user data to the
-        authenticator which performs the operation.
+        authenticator which performs the operation. A small workaround was implemented for development purposes; if the provided email does not exist in the database, instead of returning an error, a new user is created with that email and a default password with the value "password" 
       operationId: authenticateUser
       parameters:
         - in: query
@@ -359,7 +359,7 @@ paths:
                 $ref: "#/components/examples/user2"
               user 3:
                 summary: example user 3
-                $ref: "#/components/examples/user3"
+                $ref: "#/components/examples/user3" 
         required: true
 
       responses:
