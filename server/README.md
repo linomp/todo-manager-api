@@ -21,3 +21,21 @@ To test the app, use the following credentials:
 
 To set the number of items in each page of the pagination mechanism, change the OFFSET variable in:
 ./utils/constants.js
+
+
+## Implementation Roadmap
+_Repo setup & test suite_
+- [x] Analyze exam task & lab 3 solution structure
+- [x] Adjustments to `openapi.yaml` (fix layout, add examples) and import in Postman 
+- [X] Implement user creation workaround
+- [X] Create automated test suite (with Postman test scripts) - TDD approach
+
+_Feature Implementation_
+- [ ] Extend Task Schema, add `completers` property (besides count, task owner also needs to know completers' info). 
+  - Keep in mind: _"a completer is a task assignee who has completed that task. A task may have 100 assignees but less completers"_
+- [ ] Adjust notion of 'Task completion'; now based on minimum completers vs. current completers.
+- [ ] Add validation/error: _"a user who has already completed a task cannot complete it again"_.
+- [ ] Allow owner of task to see: `assignees`, `selectors` & `completers`
+- [ ] Make sure _"only assignee of a task can mark it as completed"_ still holds.
+- [ ] Double check documentation completeness (w. examples)
+- [ ] Double check everything works on SwaggerUI & Postman
