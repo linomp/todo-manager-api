@@ -102,9 +102,9 @@ paths:
             schema:
               $ref: "#/components/schemas/Task"
             examples:
-              task 1:
-                summary: example task 1
-                $ref: "#/components/examples/task1"
+              collaborative task:
+                summary: example collaborative task
+                $ref: "#/components/examples/collab_task_1"
         required: true
       responses:
         "201":
@@ -775,6 +775,20 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/User"
+        completers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        selectors:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        minCompleters:
+          type: integer
+          default: 1
+        currentCompleters:
+          type: integer
+          default: 0
         self:
           type: string
           format: uri-reference
@@ -794,13 +808,14 @@ components:
     user3:
       value:
         { "id": 15, "email": "user3.dsp@polito.it", "password": "password" }
-    task1:
+    collab_task_1:
       value:
         {
-          "description": "New Test Task",
+          "description": "Collaborative Task",
           "important": false,
           "private": false,
           "project": "Personal",
           "deadline": "2022-06-11T02:06:05.629Z",
           "completed": false,
+          "minCompleters": 3,
         }

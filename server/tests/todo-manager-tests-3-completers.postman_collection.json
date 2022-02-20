@@ -269,8 +269,8 @@
 							"    var jsonData = pm.response.json();\r",
 							"    pm.expect(jsonData).to.have.property(\"id\");\r",
 							"\r",
-							"    pm.expect(jsonData).to.have.property(\"min_completers\");\r",
-							"    pm.expect(jsonData.min_completers).to.equal(3);\r",
+							"    pm.expect(jsonData).to.have.property(\"minCompleters\");\r",
+							"    pm.expect(jsonData.minCompleters).to.equal(3);\r",
 							"\r",
 							"    pm.expect(jsonData).to.have.property(\"completers\");\r",
 							"    pm.expect(jsonData.completers).to.be.an(\"array\");\r",
@@ -322,7 +322,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"description\": \"Collaborative Task\",\n  \"important\": false,\n  \"private\": false,\n  \"project\": \"Personal\",\n  \"deadline\": \"2022-06-11T02:06:05.629Z\",\n  \"completed\": false,\n  \"min_completers\": 3\n}",
+					"raw": "{\n  \"description\": \"Collaborative Task\",\n  \"important\": false,\n  \"private\": false,\n  \"project\": \"Personal\",\n  \"deadline\": \"2022-06-11T02:06:05.629Z\",\n  \"completed\": false,\n  \"minCompleters\": 3\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -539,7 +539,7 @@
 							"    const lastCreatedTaskId = pm.collectionVariables.get(\"lastCreatedTaskId\");\r",
 							"    const filtered = jsonData.tasks.filter(t => t.id === lastCreatedTaskId)\r",
 							"    pm.expect(filtered.length).to.equal(1);\r",
-							"    pm.expect(filtered[0].min_completers).to.equal(3);\r",
+							"    pm.expect(filtered[0].minCompleters).to.equal(3);\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -6848,6 +6848,10 @@
 						"exec": [
 							"pm.test(\"Owner can see task is complete\", function () {\r",
 							"    var jsonData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(jsonData).to.have.property(\"minCompleters\");\r",
+							"    pm.expect(jsonData.minCompleters).to.equal(3);\r",
+							"    \r",
 							"    pm.expect(jsonData).to.have.property(\"completed\");\r",
 							"    pm.expect(jsonData.completed).to.equal(true);\r",
 							"});"

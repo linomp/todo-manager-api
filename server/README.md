@@ -31,8 +31,9 @@ _Repo setup & test suite_
 - [X] Create automated test suite (with Postman test scripts) - TDD approach
 
 _Feature Implementation_
-- [ ] Extend Task Schema, add `min_completers`, `selectors`, and `completers` properties (besides completer count, task owner also needs to know selectors' and completers' info). 
+- [X] Extend Task Schema, add `currentCompleters`, `minCompleters`, `selectors`, and `completers` properties (besides completer count, task owner also needs to know selectors' and completers' info). 
   - Keep in mind: _"a completer is a task assignee who has completed that task. A task may have 100 assignees but less completers"_
+- [X] Extend Task creation endpoint
 - [ ] Adjust notion of 'Task completion'; now based on minimum completers vs. current completers.
 - [ ] Add validation/error: _"a user who has already completed a task cannot complete it again"_.
 - [ ] Allow owner of task to see: `assignees`, `selectors` & `completers`
