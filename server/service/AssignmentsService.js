@@ -18,7 +18,7 @@ var WebSocket = require('../components/websocket');
  * - no response expected for this operation
  * 
  **/
-exports.assignTaskToUser = function(userId,taskId,owner) {
+exports.assignTaskToUser = function (userId, taskId, owner) {
     return new Promise((resolve, reject) => {
         const sql1 = "SELECT owner FROM tasks t WHERE t.id = ?";
         db.all(sql1, [taskId], (err, rows) => {
@@ -26,12 +26,12 @@ exports.assignTaskToUser = function(userId,taskId,owner) {
                 reject(err);
             else if (rows.length === 0)
                 reject(404);
-            else if(owner != rows[0].owner) {
+            else if (owner != rows[0].owner) {
                 reject(403);
             }
             else {
                 const sql2 = 'INSERT INTO assignments(task, user) VALUES(?,?)';
-                db.run(sql2, [taskId, userId], function(err) {
+                db.run(sql2, [taskId, userId], function (err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -54,7 +54,10 @@ exports.assignTaskToUser = function(userId,taskId,owner) {
  * - list of assignees
  * 
  **/
-exports.getUsersAssigned = function(taskId,owner) {
+exports.getUsersAssigned = function (taskId, owner) {
+
+    // TODO: populate repsonse with stuff from assignments table; selectors & completers
+
     return new Promise((resolve, reject) => {
         const sql1 = "SELECT owner FROM tasks t WHERE t.id = ?";
         db.all(sql1, [taskId], (err, rows) => {
@@ -62,17 +65,29 @@ exports.getUsersAssigned = function(taskId,owner) {
                 reject(err);
             else if (rows.length === 0)
                 reject(404);
-            else if(owner != rows[0].owner) {
+            else if (owner != rows[0].owner) {
                 reject(403);
             }
             else {
-                const sql2 = "SELECT u.id as uid, u.name, u.email FROM assignments as a, users as u WHERE  a.task = ? AND a.user = u.id";
+                const sql2 = "SELECT a.active, a.completed, u.id as uid, u.name, u.email FROM assignments as a, users as u WHERE  a.task = ? AND a.user = u.id";
                 db.all(sql2, [taskId], (err, rows) => {
                     if (err) {
                         reject(err);
                     } else {
-                        let users = rows.map((row) => new User(row.uid, row.name, row.email, null));
-                        resolve(users);
+                        let userMapper = (row) => new User(row.uid, row.name, row.email, null);
+
+                        let assignees = rows.map(userMapper);
+
+                        // users who have the task marked as active
+                        const selectors = rows.filter(row => row.active === 1).map(userMapper);
+
+                        // users who have completed the task
+                        const completers = rows.filter(row => row.completed === 1).map(userMapper);
+
+                        // combine results
+                        const result = { assignees, completers, selectors }
+
+                        resolve(result);
                     }
                 });
             }
@@ -92,7 +107,7 @@ exports.getUsersAssigned = function(taskId,owner) {
  * - no response expected for this operation
  * 
  **/
-exports.removeUser = function(taskId,userId,owner) {
+exports.removeUser = function (taskId, userId, owner) {
     return new Promise((resolve, reject) => {
         const sql1 = "SELECT owner FROM tasks t WHERE t.id = ?";
         db.all(sql1, [taskId], (err, rows) => {
@@ -100,7 +115,7 @@ exports.removeUser = function(taskId,userId,owner) {
                 reject(err);
             else if (rows.length === 0)
                 reject(404);
-            else if(owner != rows[0].owner) {
+            else if (owner != rows[0].owner) {
                 reject(403);
             }
             else {
@@ -127,24 +142,24 @@ exports.removeUser = function(taskId,userId,owner) {
  * - no response expected for this operation
  * 
  **/
- exports.assignBalanced = function(owner) {
+exports.assignBalanced = function (owner) {
     return new Promise((resolve, reject) => {
-      const sql = "SELECT t1.id FROM tasks t1 LEFT JOIN assignments t2 ON t2.task = t1.id WHERE t1.owner = ? AND t2.task IS NULL";
-      db.each(sql, [owner], (err, tasks) => {
-          if (err) {
-              reject(err);
-          } else {
-              exports.assignEach(tasks.id, owner).then(function(userid) {
-                  resolve(userid);
-              });
-          }
-      });
-      resolve(null);
+        const sql = "SELECT t1.id FROM tasks t1 LEFT JOIN assignments t2 ON t2.task = t1.id WHERE t1.owner = ? AND t2.task IS NULL";
+        db.each(sql, [owner], (err, tasks) => {
+            if (err) {
+                reject(err);
+            } else {
+                exports.assignEach(tasks.id, owner).then(function (userid) {
+                    resolve(userid);
+                });
+            }
+        });
+        resolve(null);
     });
-  }
+}
 
 
-  
+
 /**
  * Select a task as the active task
  *
@@ -158,34 +173,34 @@ exports.removeUser = function(taskId,userId,owner) {
 exports.selectTask = function selectTask(userId, taskId) {
     return new Promise((resolve, reject) => {
 
-        db.serialize(function() {  
+        db.serialize(function () {
 
             db.run('BEGIN TRANSACTION;');
             const sql1 = 'SELECT t.id FROM tasks as t WHERE t.id = ?';
-            db.all(sql1, [taskId], function(err, check) {
+            db.all(sql1, [taskId], function (err, check) {
                 if (err) {
                     db.run('ROLLBACK;')
                     reject(err);
-                } 
-                else if (check.length == 0){
+                }
+                else if (check.length == 0) {
                     db.run('ROLLBACK;')
                     reject(404);
-                } 
+                }
                 else {
                     const sql2 = 'SELECT u.name, t.description FROM assignments as a, users as u, tasks as t WHERE a.user = ? AND a.task = ? AND a.user = u.id AND a.task = t.id';
-                    db.all(sql2, [userId, taskId], function(err, rows) {
+                    db.all(sql2, [userId, taskId], function (err, rows) {
                         if (err) {
                             db.run('ROLLBACK;')
                             reject(err);
                         } else {
                             const sql3 = 'UPDATE assignments SET active = 0 WHERE user = ?';
-                            db.run(sql3, [userId], function(err) {
+                            db.run(sql3, [userId], function (err) {
                                 if (err) {
                                     db.run('ROLLBACK;')
                                     reject(err);
                                 } else {
                                     const sql4 = 'UPDATE assignments SET active = 1 WHERE user = ? AND task = ?';
-                                    db.run(sql4, [userId, taskId], function(err) {
+                                    db.run(sql4, [userId, taskId], function (err) {
                                         if (err) {
                                             db.run('ROLLBACK;')
                                             reject(err);
@@ -193,25 +208,25 @@ exports.selectTask = function selectTask(userId, taskId) {
                                             db.run('ROLLBACK;')
                                             reject(403);
                                         } else {
-                                                    db.run('COMMIT TRANSACTION');
-                                                    //inform the clients that the user selected a different task where they are working on
-                                                    var updateMessage = new WSMessage('update', parseInt(userId), rows[0].name, parseInt(taskId), rows[0].description);
-                                                    WebSocket.sendAllClients(updateMessage);
-                                                    WebSocket.saveMessage(userId, new WSMessage('login', parseInt(userId), rows[0].name, parseInt(taskId), rows[0].description));
-                                        
-                                                    resolve();
-                                                
-                                            }
-                                        })
-                                    }
-                                })
+                                            db.run('COMMIT TRANSACTION');
+                                            //inform the clients that the user selected a different task where they are working on
+                                            var updateMessage = new WSMessage('update', parseInt(userId), rows[0].name, parseInt(taskId), rows[0].description);
+                                            WebSocket.sendAllClients(updateMessage);
+                                            WebSocket.saveMessage(userId, new WSMessage('login', parseInt(userId), rows[0].name, parseInt(taskId), rows[0].description));
+
+                                            resolve();
+
+                                        }
+                                    })
+                                }
+                            })
                         }
 
                     })
                 }
 
             })
-        
+
         });
     });
 }
@@ -220,16 +235,16 @@ exports.selectTask = function selectTask(userId, taskId) {
 /**
  * Utility functions
  */
-exports.assignEach = function(taskId, owner) {
-  return new Promise((resolve, reject) => {
-      const sql = "SELECT user, MIN(Count) as MinVal FROM (SELECT user,COUNT(*) as Count FROM assignments GROUP BY user) T";
-      var user = null;
-      db.get(sql, (err, user) => {
-          if (err) {
-              reject(err);
-          } else {
-              exports.assignTaskToUser(user.user, taskId, owner).then(resolve(user.user));
-          }
-      });
-  });
+exports.assignEach = function (taskId, owner) {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT user, MIN(Count) as MinVal FROM (SELECT user,COUNT(*) as Count FROM assignments GROUP BY user) T";
+        var user = null;
+        db.get(sql, (err, user) => {
+            if (err) {
+                reject(err);
+            } else {
+                exports.assignTaskToUser(user.user, taskId, owner).then(resolve(user.user));
+            }
+        });
+    });
 }
