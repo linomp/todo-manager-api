@@ -2,14 +2,23 @@
 
 The structure of this repository is the following:
   
-- `api`: full Open API documentation of the REST APIs, including examples of JSON documents to be used when invoking the operations.
-- `components`: ...
-- `controllers`: ...
-- `database`: ...
+- `api`: full Open API documentation of the REST APIs, with examples of JSON documents to be used when invoking the operations.
 - `json_schemas`: design of the JSON Schemas.
-- `service`: ...
+- `components`: Task & User class definitions, as well as db & websockets initialization & wrapper objects to be used throughout the app. 
+- `service`: modules that interact with the database and websockets components.
+- `controllers`: modules that interact with services and provide a more abstract API. They are assigned to routes in `index.js`.
+- `utils`: utility functions - definition of constants & response writers.
+- `database`: the database file, extended to support the new features.
 - `tests`: Postman Collection used as test suite for developing the features.
-- `utils`: ...
+
+This submission is based on the solution of lab # 3. The main changes have taken place in: 
+- certain endpoints in the openapi specification
+- the Task schema in `json_schemas`
+- the database tables `assignments` and `tasks`
+- the files `service/TaskService.js` & `service/AssignmentService.js` 
+- the page size in `utils/constants.js`, for convenience during automated testing
+
+A TDD approach was followed, by modifying the openapi file according to requirements, importing it into Postman, and using it to compose a request collection that could be used as a comprehensive & automated test suite.
 
 ## Running the server
 
@@ -71,6 +80,5 @@ _Feature Implementation_
 
 _Final Checks_
 - [X] Double check documentation completeness (w. examples)
-- [X] Double check everything works on SwaggerUI & Postman (locally)
-- [X] Double check everything works on SwaggerUI & Postman (on LabInf VM)
-- [ ] Finish top level README (document changes in Task Service, Assignment Service & db)
+- [X] Double check everything works on SwaggerUI & Postman (locally & on LabInf VM)
+- [X] Finish top level README
