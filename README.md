@@ -31,7 +31,7 @@ The second one does the same as above, except there are 3 assignees and only 2 r
 
 To run the tests: 
 - launch the server with `npm start`
-- import the files in the directory `tests` into Postman desktop 
+- import the files from the directory `tests` into Postman desktop 
 - run the collection from the Postman UI; all tests should execute and pass
 
 ## Testing on Swagger UI
