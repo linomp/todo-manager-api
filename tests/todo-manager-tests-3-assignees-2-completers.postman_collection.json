@@ -533,9 +533,8 @@
 							"    \r",
 							"    const lastCreatedTaskId = pm.collectionVariables.get(\"lastCreatedTaskId\");\r",
 							"    const filtered = jsonData.tasks.filter(t => t.id === lastCreatedTaskId)\r",
-							"    console.log(jsonData.tasks)\r",
-							"    console.log(filtered)\r",
-							"    pm.expect(filtered.length).to.equal(1);\r",
+							" \r",
+							"    pm.expect(filtered.length).to.equal(1)\r",
 							"    pm.expect(filtered[0].minCompleters).to.equal(2);\r",
 							"    pm.expect(filtered[0].currentCompleters).to.equal(0);\r",
 							"});"
