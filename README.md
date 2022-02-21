@@ -72,6 +72,5 @@ _Feature Implementation_
 _Final Checks_
 - [X] Double check documentation completeness (w. examples)
 - [X] Double check everything works on SwaggerUI & Postman (locally)
-- [ ] Double check everything works on SwaggerUI & Postman (on LabInf VM)
-- [ ] Clean up repo & finish top level README (document changes in Task Service, Assignment Service & db)
-- [ ] Clean up Task Service completion code
+- [X] Double check everything works on SwaggerUI & Postman (on LabInf VM)
+- [ ] Finish top level README (document changes in Task Service, Assignment Service & db)
