@@ -12,7 +12,7 @@ The structure of this repository is the following:
 - `tests`: Postman Collection used as test suite for developing the features.
 
 This submission is based on the solution of lab # 3. The main changes have taken place in: 
-- certain endpoints in the openapi specification
+- the openapi specification
 - the Task schema in `json_schemas`
 - the database tables `assignments` and `tasks`
 - the files `service/TaskService.js` & `service/AssignmentService.js` 
@@ -47,13 +47,13 @@ To run the tests:
 
 JSON Examples corresponding to a task requiring 2 completers have been added to the relevant endpoints to test the new features:
 
-_Requests body examples_
+_Added request body examples_
 - Login user: `users/authenticator`
 - Create new task: `tasks`
 - Assign task: `tasks/{taskId}/assignees`
 - Select active task: `tasks/{taskId}/completion`
 
-_Response body examples_
+_Added response body examples_
 - Complete task: `tasks/{taskId}/completion`
   - error response examples are provided, to handle repeated complete requests by same user or complete requests on already completed activities. 
   - the description was updated to reflect the new logic for task completion.
