@@ -78,11 +78,11 @@ exports.getUsersAssigned = function (taskId, owner) {
 
                         let assignees = rows.map(userMapper);
 
-                        // users who have the task marked as active
-                        const selectors = rows.filter(row => row.active === 1).map(userMapper);
+                        // get ids of users who have the task marked as active
+                        const selectors = rows.filter(row => row.active === 1).map(row => row.uid);
 
-                        // users who have completed the task
-                        const completers = rows.filter(row => row.completed === 1).map(userMapper);
+                        // get ids of users who have completed the task
+                        const completers = rows.filter(row => row.completed === 1).map(row => row.uid);
 
                         // combine results
                         const result = { assignees, completers, selectors }

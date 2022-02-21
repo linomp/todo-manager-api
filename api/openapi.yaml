@@ -220,9 +220,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Task"
+                $ref: "#/components/schemas/Task"
+              examples:
+                completed task:
+                  summary: "completed task"
+                  $ref: "#/components/examples/completed_task"
+                partially completed task:
+                  summary: "partially completed task"
+                  $ref: "#/components/examples/non_completed_task"
         "401":
           description: Unauthorized
           content: {}
@@ -404,16 +409,16 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/User"
-              examples:
-                user 1:
-                  summary: example user 1
-                  $ref: "#/components/examples/user1"
-                user 2:
-                  summary: example user 2
-                  $ref: "#/components/examples/user2"
-                user 3:
-                  summary: example user 3
-                  $ref: "#/components/examples/user3"
+            examples:
+              user 1:
+                summary: example user 1
+                $ref: "#/components/examples/user1"
+              user 2:
+                summary: example user 2
+                $ref: "#/components/examples/user2"
+              user 3:
+                summary: example user 3
+                $ref: "#/components/examples/user3"
         required: true
       responses:
         "204":
@@ -439,8 +444,8 @@ paths:
         - "tasks/{taskId}/assignees"
       security:
         - cookieAuth: []
-      summary: Retrieve the users a task has been assigned to
-      description: The users to whom the task with ID taskId is assigned are retrieved. This operation can be performed only by the owner.
+      summary: Retrieve the users a task has been assigned to, as well as the ids of those who have selected and/or completed the task.
+      description: The users to whom the task with ID taskId is assigned are retrieved, as well as the ids those who selected the task as active, and those who have marked it as completed. This operation can be performed only by the owner.
       operationId: getUsersAssigned
       parameters:
         - name: taskId
@@ -456,9 +461,24 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  assignees:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+                  selectors:
+                    type: array
+                    items:
+                      type: integer
+                  completers:
+                    type: array
+                    items:
+                      type: integer
+              examples:
+                assignees of completed task:
+                  summary: "assignees of completed task"
+                  $ref: "#/components/examples/assignee_details"
         "401":
           description: Unauthorized
           content: {}
@@ -542,7 +562,31 @@ paths:
           content: {}
         "403":
           description: Forbidden
-          content: {}
+          content:
+            application/json:
+              examples:
+                repeated complete request:
+                  value:
+                    {
+                      "errors":
+                        [
+                          {
+                            "param": "Server",
+                            "msg": "A user cannot mark the activity as completed more than once",
+                          },
+                        ],
+                    }
+                already completed activity:
+                  value:
+                    {
+                      "errors":
+                        [
+                          {
+                            "param": "Server",
+                            "msg": "Activity is already completed",
+                          },
+                        ],
+                    }
         "404":
           description: Not Found
           content: {}
@@ -669,7 +713,7 @@ paths:
         - cookieAuth: []
       summary: Select a task as the active task
       description: >-
-        The task that is included in the request body is labeled as the active task for the user with ID userId.
+        The task with ID that is included in the request body is labeled as the active task for the user with ID userId.
       operationId: selectTask
       parameters:
         - name: userId
@@ -680,15 +724,18 @@ paths:
             type: integer
             format: int64
       requestBody:
-        description: Task to be selected as active
+        description: ID of the task to be selected as active
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Task"
+              type: object
+              properties:
+                id:
+                  type: integer
             examples:
               task 1:
-                summary: example task 1
-                value: { "id": 16 }
+                summary: object with task id placeholder
+                value: { "id": -1 }
       responses:
         "204":
           description: Successful operation - No Content
@@ -819,5 +866,60 @@ components:
           "project": "Personal",
           "deadline": "2022-06-11T02:06:05.629Z",
           "completed": false,
-          "minCompleters": 3,
+          "minCompleters": 2,
+        }
+    completed_task:
+      value:
+        {
+          "id": 25,
+          "description": "Collaborative Task",
+          "important": false,
+          "private": false,
+          "deadline": "2022-06-11T02:06:05.629Z",
+          "project": "Personal",
+          "minCompleters": 2,
+          "currentCompleters": 2,
+          "completed": true,
+          "self": "/api/tasks/25",
+        }
+    non_completed_task:
+      value:
+        {
+          "id": 27,
+          "description": "Collaborative Task",
+          "important": false,
+          "private": false,
+          "deadline": "2022-06-11T02:06:05.629Z",
+          "project": "Personal",
+          "minCompleters": 2,
+          "currentCompleters": 1,
+          "completed": false,
+          "self": "/api/tasks/27",
+        }
+    assignee_details:
+      value:
+        {
+          "assignees":
+            [
+              {
+                "id": 1,
+                "name": "User #1",
+                "email": "user.dsp@polito.it",
+                "self": "/api/users/1",
+              },
+              {
+                "id": 14,
+                "name": "User #2",
+                "email": "user2.dsp@polito.it",
+                "self": "/api/users/14",
+              },
+              {
+                "id": 15,
+                "name": "User #3",
+                "email": "user3.dsp@polito.it",
+                "self": "/api/users/15",
+              },
+            ],
+          "completers": [1, 14],
+          "selectors": [],
         }

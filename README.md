@@ -20,12 +20,37 @@ The structure of this repository is the following:
 - To view the Swagger UI interface:
   
   open http://localhost:3000/docs
+  
+## Testing on Postman
 
-- A Postman Collection is provided, to be used as automated test suite. 
+Two Postman Collections are provided, to be used as automated test suites. 
   
-  It tests the entire flow of a task with 3 "completers" (users login, task creation, task assignment, multi-user completion, and assertions of the results).
-  
-  To run it, import the file `tests/todo-manager-tests-3-completers.postman_collection.json` into Postman desktop, run the server and then run the collection from the Postman UI.
+The first one tests the entire flow of a task with 3 assignees and 3 required completers (including users login, task creation, task assignment, users task selection &  completion, and assertions on every intermediate step).
+
+The second one does the same as above, except there are 3 assignees and only 2 required completers.
+
+To run the tests: 
+- launch the server with `npm start`
+- import the files in the directory `tests` into Postman desktop 
+- run the collection from the Postman UI; all tests should execute and pass
+
+## Testing on Swagger UI
+
+JSON Examples corresponding to a task requiring 2 completers have been added to the relevant endpoints to test the new features:
+
+_Requests body examples_
+- Login user: `users/authenticator`
+- Create new task: `tasks`
+- Assign task: `tasks/{taskId}/assignees`
+- Select active task: `tasks/{taskId}/completion`
+
+_Response body examples_
+- Complete task: `tasks/{taskId}/completion`
+  - error response examples are provided, to handle repeated complete requests by same user or complete requests on already completed activities. 
+  - the description was updated to reflect the new logic for task completion.
+- Retrieve task: `tasks/{taskId}`
+- Retrieve assignees & completers of the collaborative task: `tasks/{taskId}/assignees`
+
 
 ## Implementation Roadmap
 _Repo setup & test suite_
@@ -45,7 +70,8 @@ _Feature Implementation_
 - [X] Allow owner of task to see: `assignees`, `selectors` & `completers`
 
 _Final Checks_
-- [ ] Double check documentation completeness (w. examples)
-- [ ] Double check everything works on SwaggerUI & Postman
+- [X] Double check documentation completeness (w. examples)
+- [X] Double check everything works on SwaggerUI & Postman (locally)
+- [ ] Double check everything works on SwaggerUI & Postman (on LabInf VM)
 - [ ] Clean up repo & finish top level README (document changes in Task Service, Assignment Service & db)
 - [ ] Clean up Task Service completion code

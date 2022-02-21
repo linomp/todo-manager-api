@@ -216,6 +216,12 @@ module.exports.completeTask = function completeTask(req, res, next) {
             if (response == 403) {
                 utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The user is not an assignee of the task' }], }, 403);
             }
+            else if (response == 400) {
+                utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'Activity is already completed' }], }, 403);
+            }
+            else if (response == 418) {
+                utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'A user cannot mark the activity as completed more than once' }], }, 403);
+            }
             else if (response == 404) {
                 utils.writeJson(res, { errors: [{ 'param': 'Server', 'msg': 'The task does not exist.' }], }, 404);
             }

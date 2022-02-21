@@ -372,7 +372,7 @@ exports.completeTask = function (taskId, assignee) {
                             // Return error if user who already completed tries to complete again
                             if (assignmentEntry.completed == 1) {
                                 db.run('ROLLBACK;')
-                                reject(403)
+                                reject(418)
                                 return
                             }
 
@@ -428,7 +428,7 @@ exports.completeTask = function (taskId, assignee) {
                                 })
                             } else {
                                 db.run('ROLLBACK;')
-                                reject(403);
+                                reject(400);
                             }
                         }
                     })
